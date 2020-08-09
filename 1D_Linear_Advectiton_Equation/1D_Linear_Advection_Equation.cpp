@@ -1,5 +1,7 @@
 #include <cstdio>
 #include <iostream>
+#include <algorithm>
+#include <array>
 using namespace std;
 
 void FTBS(float domain[], float u[], float un[], float grid, int nt, float c, float dt, float dx)
@@ -13,6 +15,7 @@ void FTBS(float domain[], float u[], float un[], float grid, int nt, float c, fl
         {
             un[i]= u[i];
         }
+
         for ( i = 1; i<grid; i++)
         {
             u[i] = un[i] - c * dt / dx * (un[i] - un[i-1]);
@@ -58,6 +61,7 @@ void FTFS(float domain[], float u[], float un[], float grid, int nt, float c, fl
             un[i]= u[i];
         }
 
+
         for ( i = 1; i<grid; i++)
         {
             u[i] = un[i] - c * dt / dx * (un[i+1] - un[i]);
@@ -84,18 +88,13 @@ int main()
         domain[i] = i*dx;
     }
 
-    for (i = 0; i < grid  ; i++)
+    fill_n(u,grid,1.0);
+    fill_n(un,grid,1.0);
+    for (i= int(0.5/dx) ; i <= int(1.0/dx+1.0) ; i++ )
     {
-        if(0.5 <= domain[i] && domain[i] <= 1.0)
-        {
-            u[i] = 2.0;
-        }
-        else
-        {
-            u[i] = 1.0;
-        }
-        un[i] = 1.0;
+        u[i] = 2.0;
     }
+
     FTBS(domain,u,un,grid,nt,c,dt,dx);
     FTCS(domain,u,un,grid,nt,c,dt,dx);
     FTFS(domain,u,un,grid,nt,c,dt,dx);
