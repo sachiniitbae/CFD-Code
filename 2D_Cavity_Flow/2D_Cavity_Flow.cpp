@@ -4,31 +4,31 @@
 using namespace std;
 #define nx 41
 #define ny 41
-#define nt 100
-#define nit 50
+#define nt 5
+#define nit 10
 
 float build_up_b(float b[][ny],float rho,float dt,float u[][ny],float v[][ny], float dx, float dy)
 {
     int i,j;
-    b[i][j] = (rho * (1 / dt *
-                ((u[i+1][j] - u[i-1][j]) /
-                (2 * dx) + (v[i][j+1] - v[i][j-1]) / (2 * dy)) -
-                pow(((u[i+1][j] - u[i-1][j]) / (2 * dx)),2) -
-                2 * ((u[i][j+1] - u[i][j-1]) / (2 * dy) *
-                (v[i+1][j] - v[i-1][j]) / (2 * dx))-
-                (pow(((v[i][j+1] - v[i][j-1]) / (2 * dy)),2)))) ;
+    for(i=0; i<nx; i++)
+    {
+        for(j=0; j<ny; j++)
+        {
+            b[i][j] = (rho * (1 / dt *((u[i+1][j] - u[i-1][j]) /(2 * dx) + (v[i][j+1] - v[i][j-1]) / (2 * dy)) - pow(((u[i+1][j] - u[i-1][j]) / (2 * dx)),2) - 2 * ((u[i][j+1] - u[i][j-1]) / (2 * dy) *(v[i+1][j] - v[i-1][j]) / (2 * dx))-(pow(((v[i][j+1] - v[i][j-1]) / (2 * dy)),2)))) ;
+                //printf("b[%d][%d]:%f \n",i,j,b[i][j]);
+        }
+    }
 
     return b[i][j];
-
 }
 
 float pressure_poisson(float p[][ny],float dx, float dy, float b[][ny])
 {
     int i,j,k;
-    static float pn[nx][ny];
-    for (i = 0; i<nx ;i++)
+    float pn[nx][ny];
+    for (i = 0; i<nx ; i++)
     {
-        for(j=0;j<ny;j++)
+        for(j=0; j<ny ; j++)
         {
             pn[i][j] = 0.0;
         }
@@ -43,22 +43,22 @@ float pressure_poisson(float p[][ny],float dx, float dy, float b[][ny])
                 pn[i][j]= p[i][j];
             }
         }
+        for(i=1;i<nx;i++)
+        {
+            for(j=1;j<ny;j++)
+            {
+                p[i][j] = ((((pn[i+1][j] + pn[i-1][j]) * dy*dy +(pn[i][j+1] + pn[i][j-1]) * dx*dx) /(2 * (dx*dx + dy*dy))) - ((dx*dx * dy*dy )/ (2 * (dx*dx + dy*dy)))*b[i][j]);
 
-        p[i][j] = (((pn[i+1][j] + pn[i-1][j]) * dy*dy +
-                          (pn[i][j+1] + pn[i][j-1]) * dx*dx) /
-                          (2 * (dx*dx + dy*dy)) -
-                          dx*dx * dy*dy / (2 * (dx*dx + dy*dy)) *
-                          b[i][j]);
-
-        p[nx][j] = p[nx-1][j]; // dp/dx = 0 at x = 2
-        p[i][0] = p[i][1];   // dp/dy = 0 at y = 0
-        p[0][j] = p[1][j];   // dp/dx = 0 at x = 0
-        p[i][ny] = 0;    // p = 0 at y = 2
+                p[nx][j] = p[nx-1][j]; // dp/dx = 0 at x = 2
+                p[i][0] = p[i][1];   // dp/dy = 0 at y = 0
+                p[0][j] = p[1][j];   // dp/dx = 0 at x = 0
+                p[i][ny] = 0.0;    // p = 0 at y = 2
+                //printf("p[%d][%d][%d]:%f \n",k,i,j,p[i][j]);
+            }
+        }
     }
 
     return p[i][j];
-
-
 }
 
 
@@ -66,10 +66,11 @@ void Cavity_flow(float u[][ny],float v[][ny],float p[][ny],float rho, float nu, 
 {
     FILE *fp;
     fp = fopen("2D_Cavity_Flow_final_Solution.dat","w");
-    int i,j,k;
-    static float y[ny],x[nx],b[nx][ny];
-    static float un[nx][ny],vn[nx][ny];
-
+    int i,j,k,l,m,n;
+    float y[ny],x[nx],b[nx][ny];
+    float un[nx][ny],vn[nx][ny];
+    float pn[nx][ny];
+    printf("%f,%f,%f,%f",dx,dy,dt,nu);
 
     for (j = 0; j < ny;j++)
     {
@@ -84,6 +85,8 @@ void Cavity_flow(float u[][ny],float v[][ny],float p[][ny],float rho, float nu, 
             b[i][j] = 0.0;
             un[i][j] = 0.0;
             vn[i][j] = 0.0;
+            pn[i][j] = 0.0;
+            //cout << p[i][j]<<"\t"<<v[i][j]<<"\t"<<u[i][j]  << endl;
         }
     }
 
@@ -97,15 +100,30 @@ void Cavity_flow(float u[][ny],float v[][ny],float p[][ny],float rho, float nu, 
                 vn[i][j]= v[i][j];
             }
         }
+
         b[i][j] = build_up_b(b,rho,dt,u,v,dx,dy);
         p[i][j] = pressure_poisson(p,dx,dy,b);
+        for(i=0;i<nx;i++)
+            {
+                for(j=0;j<ny;j++)
+                {
+                    //b[i][j] = build_up_b(b,rho,dt,u,v,dx,dy);
+                    //printf("b[%d][%d]:%f \n",i,j,b[i][j]);
+                    //printf("p[%d][%d][%d]:%f \n",k,i,j,p[i][j]);
+                }
+            }
+
+
+
+        //build_up_b(b,rho,dt,u,v,dx,dy);
+        //pressure_poisson(p,dx,dy,b);
 
         for ( i = 1; i < nx; i++)
         {
             for (j = 1; j < ny; j++)
             {
                 //b[i][j] = build_up_b(b,rho,dt,u,v,dx,dy);
-                //p[i][j] = pressure_poisson(p,pn,dx,dy,b);
+                //p[i][j] = pressure_poisson(p,dx,dy,b);
                 u[i][j] = (un[i][j]-
                          un[i][j] * dt / dx *
                         (un[i][j] - un[i-1][j]) -
@@ -129,14 +147,15 @@ void Cavity_flow(float u[][ny],float v[][ny],float p[][ny],float rho, float nu, 
                          dt / dy*dy *
                         (vn[i][j+1] - 2 * vn[i][j] + vn[i][j-1]))) ;
 
+                v[0][j] = 0.0;
+                v[i][0] = 0.0;
+                v[i][nx] = 0.0;
+                v[nx][j] = 0.0;
                 u[0][j] = 0.0;
                 u[nx][j] = 0.0;
                 u[i][0] = 0.0;
                 u[i][ny] = 1.0;
-                v[0][j] = 0.0;
-                v[nx][j] = 0.0;
-                v[i][0] = 0.0;
-                v[i][ny] = 0.0;
+                //printf("u[%d][%d][%d]:%f \n",k,i,j,v[i][j]);
             }
         }
     }
@@ -162,7 +181,7 @@ int main()
     float dt = .001;
     FILE *fp;
     fp = fopen("2D_Cavity_Initial_Condition.dat","w");
-    static float x[nx],y[ny],u[nx][ny], v[nx][ny], p[nx][ny], b[nx][ny];
+    float x[nx],y[ny],u[nx][ny], v[nx][ny], p[nx][ny], b[nx][ny];
     for (i = 0; i < nx ;i++)
     {
         x[i] = i*dx;
@@ -179,14 +198,7 @@ int main()
             b[i][j] = 0.0;
         }
     }
-/*
-    for (i = int(0.5/dx) ; i <= int(1.0/dx+1.0) ; i++ )
-    {
-        for(j = int(0.5/dy) ; j <= int(1.0/dy+1.0) ; j++)
-        {
-            u[i][j] = 2.0;
-        }
-    }*/
+
 
     fprintf(fp,"VARIABLES = \"x\"\t,\"y\"\t,\"u\"\t,\"v\"\t,\"p\"\n");
     for (i = 0; i < nx; i++)
@@ -197,4 +209,17 @@ int main()
       }
    }
    Cavity_flow(u,v,p,rho,nu,dt,dx,dy);
+   //b[i][j] = build_up_b(b,rho,dt,u,v,dx,dy);
+   //p[i][j] = pressure_poisson(p,dx,dy,b);
+  // p[i][j] = pressure_poisson(p,dx,dy,b);
+  /* for(i=0;i<nx;i++)
+   {
+       for(j=0;j<ny;j++)
+       {
+           //b[i][j] = build_up_b(b,rho,dt,u,v,dx,dy);
+           //printf("b[%d][%d]:%f \n",i,j,b[i][j]);
+           printf("p[%d][%d]:%f \n",i,j,p[i][j]);
+       }
+   }*/
+
 }
