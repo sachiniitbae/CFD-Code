@@ -24,8 +24,8 @@ void TwoD_Linear_Advection(float u[][ny], float un[][ny], float dt, float dx, fl
                 un[i][j]= u[i][j];
             }
         }
-        //fprintf(fp,"VARIABLES=\"X\"\t,\"Y\"\t,\"U\"\n");
-        //fprintf(fp,"ZONE T=\"%d\", I=81, J=81, F = point\n",k);
+        fprintf(fp,"VARIABLES=\"X\"\t,\"Y\"\t,\"U\"\n");
+        fprintf(fp,"ZONE T=\"%d\", I=81, J=81, F = point\n",k);
 
         for ( i = 1; i < nx-1; i++)
         {
@@ -38,7 +38,7 @@ void TwoD_Linear_Advection(float u[][ny], float un[][ny], float dt, float dx, fl
                 u[i][ny] = 1.0;
             }
         }
-        /*
+
         for (i=0 ; i < nx ; i++)
             {
                 for (j=0 ; j < ny ; j++)
@@ -47,9 +47,9 @@ void TwoD_Linear_Advection(float u[][ny], float un[][ny], float dt, float dx, fl
                 }
             }
         fprintf(fp,"\n\n");
-        */
-    }
 
+    }
+/*
     fprintf(fp,"VARIABLES = \"x\"\t,\"y\"\t,\"u\"\n");
     for (i=0 ; i < nx ; i++)
     {
@@ -57,7 +57,7 @@ void TwoD_Linear_Advection(float u[][ny], float un[][ny], float dt, float dx, fl
         {
             fprintf(fp,"%0.2f\t %0.2f\t %f\n",x[i],y[j],u[i][j]);
         }
-    }
+    }*/
 }
 
 int main()

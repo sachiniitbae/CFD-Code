@@ -1,9 +1,9 @@
 #include <iostream>
 #include <math.h>
 using namespace std;
-#define nx 41
-#define ny 41
-#define nt 400
+#define nx 81
+#define ny 81
+#define nt 800
 #define nit 50
 
 void Cavity_flow(float u[][ny],float v[][ny],float p[][ny],float rho, float nu, float dt, float dx, float dy)
@@ -45,6 +45,9 @@ void Cavity_flow(float u[][ny],float v[][ny],float p[][ny],float rho, float nu, 
                 vn[i][j]= v[i][j];
             }
         }
+
+        fprintf(fp,"VARIABLES = \"x\"\t\"y\"\t\"u\"\t\"v\"\t\"p\"\n");
+        fprintf(fp,"ZONE T=\"%d\", I=%d, J=%d, F = point\n",k,nx,ny);
 
 // Calculation of pressure
         for(l=0; l<nit ; l++)
@@ -137,8 +140,17 @@ void Cavity_flow(float u[][ny],float v[][ny],float p[][ny],float rho, float nu, 
                 v[i][ny-1] = 0.0;
             }
 
-    }
+        for (i=0 ; i < nx ; i++)
+            {
+                for (j=0 ; j < ny ; j++)
+                {
+                    fprintf(fp,"%f\t %f\t %f\t %f\t %f\n",x[i],y[j],u[i][j],v[i][j],p[i][j]);
+                }
+            }
+            fprintf(fp,"\n\n");
 
+    }
+/*
 // Tecplot format
     fprintf(fp,"VARIABLES = \"x\"\t,\"y\"\t,\"u\"\t,\"v\"\t,\"p\"\n");
     for (i=0 ; i < nx ; i++)
@@ -148,7 +160,7 @@ void Cavity_flow(float u[][ny],float v[][ny],float p[][ny],float rho, float nu, 
             fprintf(fp,"%f\t %f\t %f\t %f\t %f\n",x[i],y[j],u[i][j],v[i][j],p[i][j]);
         }
     }
-
+*/
     for(j=0;j<ny;j++)
    {
        for(i=0;i<nx;i++)

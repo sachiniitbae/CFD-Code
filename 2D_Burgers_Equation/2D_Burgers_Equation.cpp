@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
 using namespace std;
-#define nx 41
-#define ny 41
-#define nt 120
+#define nx 81
+#define ny 81
+#define nt 200
 
 void Burgers(float u[][ny], float un[][ny],float v[][ny], float vn[][ny], float dt, float dx, float dy, float c, float nu)
 {
@@ -27,6 +27,9 @@ void Burgers(float u[][ny], float un[][ny],float v[][ny], float vn[][ny], float 
                 vn[i][j]= v[i][j];
             }
         }
+
+        fprintf(fp,"VARIABLES = \"x\"\t\"y\"\t\"u\"\t\"v\"\n");
+        fprintf(fp,"ZONE T=\"%d\", I=%d, J=%d, F = point\n",k,nx,ny);
 
         for ( i = 1; i < nx-1; i++)
         {
@@ -62,8 +65,17 @@ void Burgers(float u[][ny], float un[][ny],float v[][ny], float vn[][ny], float 
                 v[i][ny] = 1.0;
             }
         }
-    }
 
+        for (i=0 ; i < nx ; i++)
+            {
+                for (j=0 ; j < ny ; j++)
+                {
+                    fprintf(fp,"%f\t %f\t %f\t %f\n",x[i],y[j],u[i][j],v[i][j]);
+                }
+            }
+            fprintf(fp,"\n\n");
+    }
+/*
     fprintf(fp,"VARIABLES = \"x\"\t,\"y\"\t,\"u\"\t,\"v\"\n");
     for (i=0 ; i < nx ; i++)
     {
@@ -71,7 +83,7 @@ void Burgers(float u[][ny], float un[][ny],float v[][ny], float vn[][ny], float 
         {
             fprintf(fp,"%0.2f\t %0.2f\t %f\t %f\n",x[i],y[j],u[i][j],v[i][j]);
         }
-    }
+    }*/
 }
 
 int main()

@@ -26,6 +26,9 @@ void Diffusion(float u[][ny], float un[][ny],float nu, float dt, float dx, float
             }
         }
 
+        //fprintf(fp,"VARIABLES=\"X\"\t,\"Y\"\t,\"U\"\n");
+        //fprintf(fp,"ZONE T=\"%d\", I=81, J=81, F = point\n",k);
+
         for ( i = 1; i < nx-1; i++)
         {
             for (j = 1; j < ny-1; j++)
@@ -38,6 +41,16 @@ void Diffusion(float u[][ny], float un[][ny],float nu, float dt, float dx, float
                 u[i][ny] = 1.0;
             }
         }
+/*
+        for (i=0 ; i < nx ; i++)
+            {
+                for (j=0 ; j < ny ; j++)
+                {
+                    fprintf(fp,"%0.2f\t %0.2f\t %f\n",x[i],y[j],u[i][j]);
+                }
+            }
+        fprintf(fp,"\n\n");*/
+
     }
 
     fprintf(fp,"VARIABLES = \"x\"\t,\"y\"\t,\"u\"\n");
